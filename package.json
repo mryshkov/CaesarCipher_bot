@@ -1,0 +1,28 @@
+{
+  "name": "gitcaesarbot",
+  "version": "1.0.0",
+  "description": "ukrainian and english Caesar cypher in JavaScript(one way only as for now)",
+  "main": "caesarCypher.js",
+  "scripts": {
+    "dev": "nodemon main.js",
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mryshkov/caesarCypher.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mryshkov/caesarCypher/issues"
+  },
+  "homepage": "https://github.com/mryshkov/caesarCypher#readme",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "nodemon": "^3.1.10"
+  }
+}
