@@ -9,7 +9,7 @@ const bot = new TelegramApi(token, {polling: {
         params: { timeout: 10 }
     }});
 
-let language = "ukr", offset, mode;
+let language = "ukr", offset, mode = "code";
 
 const phrases = {
     ukr: {
@@ -112,20 +112,14 @@ const engAlphabet = [
 
 const userStates = new Map();
 
-function symbolApprove(e, output) {
-    if (e === " "){
-        return output += " ";
-    } else if(e === ","){
-        return output += ",";
-    } else if(e === "?"){
-        return output += "?";
-    } else if(e === "!"){
-        return output += "!"
-    } else if(e === "."){
-        return output += ".";
-    } else if (!isNaN(e)){
-        return output += e;
-    }
+function symbolApprove(e) {
+    if (e.match(/\s/)) return e;
+    //else if(e.match(/\W/)) return e;
+    else if(e === ",") return ",";
+    else if(e === "?") return "?";
+    else if(e === "!") return "!"
+    else if(e === ".") return ".";
+    else if (!isNaN(e)) return e;
 }
 
 async function start(){
@@ -136,8 +130,7 @@ async function start(){
     bot.on("message", async msg => {
         const chatId = msg.chat.id;
         const state  = userStates.get(chatId);
-        let  text   = msg.text;
-        let   lastState;
+        let   text   = msg.text;
         console.log(msg);
 
         if (chatId === 857452559){
@@ -146,7 +139,6 @@ async function start(){
 
         if (text !== undefined) {
             if (text === "/start") {
-                lastState = null;
                 offset = 0;
             }
             if (text === "/language" || text === "/start") {
@@ -172,16 +164,14 @@ async function start(){
                 } else if (text === "eng" || text === "анг") {
                     language = "eng";
                 } else {
-                    lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_language";
                     return bot.sendMessage(chatId, phrases[language].select_correct_lang);
                 }
                 await bot.setMyCommands(commands);
 
-                lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_language";
-                console.log(lastState)
-                userStates.set(chatId, lastState === "waiting_for_message" ? lastState : "waiting_for_mode");
+                userStates.set(chatId, "waiting_for_mode");
 
-                return bot.sendMessage(chatId, phrases[language].lang_chosen + "\n" + (lastState === "waiting_for_message" ? phrases[language].waiting_for_message() : phrases[language].change_mode));
+                return bot.sendMessage(chatId, phrases[language].lang_chosen + "\n" +
+                    phrases[language].change_mode);
             }
 
             // mode change
@@ -189,24 +179,19 @@ async function start(){
                 if (phrases[language].mode_code.includes(text.toLowerCase())) {
                     mode = "code";
 
-                    await bot.sendMessage(chatId, phrases[language].mode_chosen() + "\n\n" + (lastState === "waiting_for_offset" ? phrases[language].waiting_for_message() : phrases[language].change_offset));
+                    await bot.sendMessage(chatId, phrases[language].mode_chosen() + "\n" +
+                        phrases[language].change_offset);
 
-                    lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_mode";
-                    return userStates.set(chatId, lastState === "waiting_for_message" ? lastState : "waiting_for_offset");
+                    return userStates.set(chatId, "waiting_for_offset");
                 } else if(phrases[language].mode_decode.includes(text.toLowerCase())) {
                     mode = "decode";
 
-                    await bot.sendMessage(chatId, phrases[language].mode_chosen() + "\n\n" + (lastState === "waiting_for_offset" ? phrases[language].waiting_for_message() : phrases[language].change_offset));
+                    await bot.sendMessage(chatId, phrases[language].mode_chosen() + "\n" +
+                        phrases[language].change_offset);
 
-                    console.log(lastState);
-                    lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_mode";
-                    console.log(lastState);
-                    return userStates.set(chatId, lastState === "waiting_for_message" ? lastState : "waiting_for_offset");
+                    return userStates.set(chatId, "waiting_for_offset");
                 } else {
-                    await bot.sendMessage(chatId, phrases[language].select_correct_mode);
-
-                    console.log(lastState);
-                    return lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_mode";
+                    return bot.sendMessage(chatId, phrases[language].select_correct_mode);
                 }
             }
 
@@ -218,49 +203,51 @@ async function start(){
                 if (!isNaN(parsedText) && parsedText <= maxOffset && parsedText >= 1) {
                     offset = parsedText;
 
-                    await bot.sendMessage(chatId, phrases[language].offset_changed() + "\n" + (lastState === "waiting_for_message" ? phrases[language].waiting_for_message() : lastState === "waiting_for_language" ? phrases[language].select_lang : phrases[language].change_mode));
+                    userStates.set(chatId, "waiting_for_message");
 
-                    userStates.set(chatId, lastState !== "waiting_for_message" ? lastState : "waiting_for_message")  // coming back to last state, if not waiting_for_message
-                    return lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_offset";
+                    return bot.sendMessage(chatId, phrases[language].offset_changed() +
+                        "\n" + phrases[language].waiting_for_message());
                 } else {
-                    await bot.sendMessage(chatId, phrases[language].incorrect_offset);
-
-                    return lastState = lastState === "waiting_for_message" ? lastState : "waiting_for_offset";
+                    return bot.sendMessage(chatId, phrases[language].incorrect_offset);
                 }
             }
 
             // message processing
             if (state === "waiting_for_message") {
-                let output = "";
+                let symbol, output = "";
                 let messageArr = text.split("");
                 let alphabet = language === "ukr" ? ukrAlphabet : engAlphabet;
 
                 if (mode === "code") {
                     messageArr.forEach((e) => {
-                        for (let i = 0; i <= alphabet.length; i++){
-                            if (symbolApprove(e, output) !== undefined){
+                        symbol = symbolApprove(e);
+                        for (let i = 0; i < alphabet.length; i++){
+                            if (e === alphabet[i]) {
+                                output += alphabet[i+offset];
                                 break;
                             }
 
-                            if (e === alphabet[i]){
-                                output += alphabet[i+offset];
+                            if (symbol !== undefined) {
+                                output += symbol;
                                 break;
                             }
                         }
                     })
                 } else {
                     messageArr.forEach((e) => {
-                        for (let i = 0; i <= alphabet.length; i++){
-                            if (symbolApprove(e, output) !== undefined){
-                                break;
-                            }
-
+                        symbol = symbolApprove(e);
+                        for (let i = 0; i < alphabet.length; i++){
                             if (e === alphabet[i]){
                                 if (alphabet === ukrAlphabet) {
                                     output += alphabet[33+i-offset];
                                     break;
                                 }
                                 output += alphabet[26+i-offset];
+                                break;
+                            }
+
+                            if (symbol !== undefined) {
+                                output += symbol;
                                 break;
                             }
                         }
@@ -271,8 +258,7 @@ async function start(){
 
                     await bot.sendMessage(chatId, phrases[language].send_next_message);
 
-                    userStates.set(chatId, "waiting_for_message");
-                    return lastState = userStates.get(chatId);
+                    return userStates.set(chatId, "waiting_for_message");
                 }
             }
 

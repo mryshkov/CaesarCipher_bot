@@ -4,8 +4,8 @@
   "description": "ukrainian and english Caesar cypher in JavaScript(one way only as for now)",
   "main": "caesarCypher.js",
   "scripts": {
-    "dev": "nodemon main.js",
-    "start": "node main.js"
+    "dev": "nodemon telegram_bot.js",
+    "start": "node telegram_bot.js"
   },
   "repository": {
     "type": "git",
