@@ -9,7 +9,7 @@ const bot = new TelegramApi(token, {polling: {
         params: { timeout: 10 }
     }});
 
-let language = "ukr", offset, mode = "code";
+let language = "ukr", offset, mode = "code", parsedText;
 
 const phrases = {
     ukr: {
@@ -29,7 +29,7 @@ const phrases = {
         mode_chosen: () => `Ви встановили режим ${mode === "code" ? "зашифровки" : "розшифровки"}`,
         change_mode_description: "Змінити режим шифрування/розшифрування",
         change_offset: "Оберіть зсув",
-        offset_changed: () => `Поточний зсув: ${offset}. Щоб змінити, напишіть /offset`,
+        offset_changed: () => `Поточний зсув: ${parsedText}. Щоб змінити, напишіть /offset`,
         change_offset_description: "Обрати зсув",
         incorrect_offset: "Укажіть число між 1 та 33",
         waiting_for_message: () => `Надішліть повідомлення для ${mode === "code" ? "зашифровки" : "розшифровки"}`,
@@ -56,7 +56,7 @@ const phrases = {
         mode_chosen: () => `You've successfully set you mode to ${mode === "code" ? "coding" : "decoding"}`,
         change_mode_description: "Change code/decode mode",
         change_offset: "Select the offset",
-        offset_changed: () => `Current offset is set to ${offset}. Type /offset to change`,
+        offset_changed: () => `Current offset is set to ${parsedText}. Type /offset to change`,
         change_offset_description: "Change the offset",
         incorrect_offset: "Enter numbers from 1 to 26 only",
         waiting_for_message: () => `Send message for ${mode === "code" ? "coding" : "decoding"}`,
@@ -114,12 +114,12 @@ const userStates = new Map();
 
 function symbolApprove(e) {
     if (e.match(/\s/)) return e;
-    //else if(e.match(/\W/)) return e;
-    else if(e === ",") return ",";
+    else if (!isNaN(e)) return e;
+    else if(e.match(/\W/)) return e;
+    /*else if(e === ",") return ",";
     else if(e === "?") return "?";
     else if(e === "!") return "!"
-    else if(e === ".") return ".";
-    else if (!isNaN(e)) return e;
+    else if(e === ".") return ".";*/
 }
 
 async function start(){
@@ -197,11 +197,11 @@ async function start(){
 
             // offset change
             if (state === "waiting_for_offset") {
-                let parsedText = parseInt(text);
+                parsedText = parseInt(text);
                 let maxOffset = language === "ukr" ? 33 : 26;
 
                 if (!isNaN(parsedText) && parsedText <= maxOffset && parsedText >= 1) {
-                    offset = parsedText;
+                    offset = mode === "code" ? parsedText : language === "ukr" ? 33 - parsedText : 26 - parsedText;
 
                     userStates.set(chatId, "waiting_for_message");
 
@@ -215,44 +215,22 @@ async function start(){
             // message processing
             if (state === "waiting_for_message") {
                 let symbol, output = "";
-                let messageArr = text.split("");
                 let alphabet = language === "ukr" ? ukrAlphabet : engAlphabet;
 
-                if (mode === "code") {
-                    messageArr.forEach((e) => {
-                        symbol = symbolApprove(e);
-                        for (let i = 0; i < alphabet.length; i++){
-                            if (e === alphabet[i]) {
-                                output += alphabet[i+offset];
-                                break;
-                            }
-
-                            if (symbol !== undefined) {
-                                output += symbol;
-                                break;
-                            }
+                text.split("").forEach((e) => {
+                    symbol = symbolApprove(e);
+                    for (let i = 0; i < alphabet.length; i++){
+                        if (e === alphabet[i]) {
+                            output += alphabet[i+offset];
+                            break;
                         }
-                    })
-                } else {
-                    messageArr.forEach((e) => {
-                        symbol = symbolApprove(e);
-                        for (let i = 0; i < alphabet.length; i++){
-                            if (e === alphabet[i]){
-                                if (alphabet === ukrAlphabet) {
-                                    output += alphabet[33+i-offset];
-                                    break;
-                                }
-                                output += alphabet[26+i-offset];
-                                break;
-                            }
-
-                            if (symbol !== undefined) {
-                                output += symbol;
-                                break;
-                            }
+                        if (symbol !== undefined) {
+                            output += symbol;
+                            break;
                         }
-                    })
-                }
+                    }
+                })
+
                 if (output.length > 0) {
                     await bot.sendMessage(chatId, output);
 
