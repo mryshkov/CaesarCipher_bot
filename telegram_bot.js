@@ -112,16 +112,6 @@ const engAlphabet = [
 
 const userStates = new Map();
 
-function symbolApprove(e) {
-    if (e.match(/\s/)) return e;
-    else if (!isNaN(e)) return e;
-    else if(e.match(/\W/)) return e;
-    /*else if(e === ",") return ",";
-    else if(e === "?") return "?";
-    else if(e === "!") return "!"
-    else if(e === ".") return ".";*/
-}
-
 async function start(){
     await bot.setMyCommands(commands)
 
@@ -214,20 +204,22 @@ async function start(){
 
             // message processing
             if (state === "waiting_for_message") {
-                let symbol, output = "";
+                let symbol, output = "", skip;
                 let alphabet = language === "ukr" ? ukrAlphabet : engAlphabet;
 
                 text.split("").forEach((e) => {
-                    symbol = symbolApprove(e);
+                    symbol = e.match(/\s|[^A-Za-z\u0400-\u04FF]/) ? e : undefined;
+                    skip = 0;
                     for (let i = 0; i < alphabet.length; i++){
                         if (e === alphabet[i]) {
                             output += alphabet[i+offset];
+                            skip++;
                             break;
                         }
-                        if (symbol !== undefined) {
-                            output += symbol;
-                            break;
-                        }
+
+                    }
+                    if (skip === 0 && symbol !== undefined) {
+                        output += symbol;
                     }
                 })
 
