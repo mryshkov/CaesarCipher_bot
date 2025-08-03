@@ -7,5 +7,6 @@
 /dataSources/
 /dataSources.local.xml
 .env
+ecosystem.config.js
 .idea/
 node_modules/
