@@ -34,6 +34,7 @@ const phrases = {
         incorrect_offset: "Укажіть число між 1 та 33",
         waiting_for_message: () => `Надішліть повідомлення для ${mode === "code" ? "зашифровки" : "розшифровки"}`,
         send_next_message: "Чекаю на наступне повідомлення",
+        select_start: "Натисніть /start для роботи бота",
 
         // user messages
         mode_code: ["шифрування", "шифрувати", "зашифрувати"],
@@ -61,6 +62,7 @@ const phrases = {
         incorrect_offset: "Enter numbers from 1 to 26 only",
         waiting_for_message: () => `Send message for ${mode === "code" ? "coding" : "decoding"}`,
         send_next_message: "Waiting for the next message",
+        select_start: "Type /start to start",
 
         // user messages
         mode_code: ["code", "coding"],
@@ -208,7 +210,7 @@ async function start(){
                 let alphabet = language === "ukr" ? ukrAlphabet : engAlphabet;
 
                 text.split("").forEach((e) => {
-                    symbol = e.match(/\s|[^A-Za-z\u0400-\u04FF]/) ? e : undefined;
+                    symbol = e.match(/[^A-Za-z\u0400-\u04FF]/) ? e : undefined;
                     skip = 0;
                     for (let i = 0; i < alphabet.length; i++){
                         if (e === alphabet[i]) {
@@ -232,7 +234,7 @@ async function start(){
                 }
             }
 
-            return bot.sendMessage(chatId, phrases[language].unrecognised);
+            return bot.sendMessage(chatId, phrases[language].unrecognised + "\n" + (userStates.get(chatId) === undefined ? phrases[language].select_start : ""));
         } else{
             return bot.sendMessage(chatId, "Дибіл хєрньою не займайся");
         }
