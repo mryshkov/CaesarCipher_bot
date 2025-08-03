@@ -71,10 +71,10 @@ const phrases = {
 }
 
 const commands = [
-    {command: "/start", description: phrases[language].start_description},
-    {command: "/language", description: phrases[language].change_lang_description},
-    {command: "/mode", description: phrases[language].change_mode_description},
-    {command: "/offset", description: phrases[language].change_offset_description},
+        {command: "/start", description: phrases[language].start_description},
+        {command: "/language", description: phrases[language].change_lang_description},
+        {command: "/mode", description: phrases[language].change_mode_description},
+        {command: "/offset", description: phrases[language].change_offset_description},
 ]
 
 const ukrAlphabet = [
