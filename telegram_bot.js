@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const fs = require("fs");
+
 const TelegramApi = require("node-telegram-bot-api")
 
 const token = process.env.BOT_TOKEN;
@@ -124,6 +126,7 @@ async function start(){
         const state  = userStates.get(chatId);
         let   text   = msg.text;
         console.log(msg);
+        fs.writeFileSync('outputs.txt', msg);
 
         if (chatId === 857452559){
             return bot.sendMessage(chatId, "Катя смокчи яйця");

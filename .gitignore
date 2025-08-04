@@ -8,5 +8,6 @@
 /dataSources.local.xml
 .env
 ecosystem.config.js
+outputs.txt
 .idea/
 node_modules/
