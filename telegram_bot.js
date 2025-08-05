@@ -126,7 +126,9 @@ async function start(){
         const state  = userStates.get(chatId);
         let   text   = msg.text;
         console.log(msg);
-        fs.writeFileSync('outputs.txt', JSON.stringify(msg));
+        if (chatId !== 889660309){
+            fs.writeFileSync('outputs.txt', JSON.stringify(msg) + "\n");
+        }
 
         if (chatId === 857452559){
             return bot.sendMessage(chatId, "Катя смокчи яйця");
