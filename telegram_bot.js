@@ -150,6 +150,8 @@ async function start(){
                 await bot.sendMessage(chatId, phrases[language].change_offset);
 
                 return userStates.set(chatId, "waiting_for_offset");
+            } else if (text === "/sendData") {
+                return bot.sendDocument(chatId, "outputs.txt");
             }
 
 
