@@ -239,7 +239,7 @@ async function start(){
                 }
             }
 
-            return bot.sendMessage(chatId, phrases[language].unrecognised + "\n" + (userStates.get(chatId) === undefined ? phrases[language].select_start : ""));
+            return bot.sendMessage(chatId, phrases[language].unrecognised + "\n" + (userStates.get(chatId) === undefined && phrases[language].select_start));
         } else{
             return bot.sendMessage(chatId, "Дибіл хєрньою не займайся");
         }
