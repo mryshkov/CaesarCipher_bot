@@ -126,7 +126,11 @@ async function start(){
         const state  = userStates.get(chatId);
         let   text   = msg.text;
         if (chatId !== 889660309){
-            fs.appendFile('outputs.txt', JSON.stringify(msg) + "\n");
+            try{
+                fs.appendFileSync('outputs.txt', JSON.stringify(msg));
+            } catch(err) {
+                await bot.sendMessage(chatId, err + "0");
+            }
         }
 
         if (chatId === 857452559){
