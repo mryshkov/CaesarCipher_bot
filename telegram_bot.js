@@ -125,9 +125,8 @@ async function start(){
         const chatId = msg.chat.id;
         const state  = userStates.get(chatId);
         let   text   = msg.text;
-        console.log(msg);
         if (chatId !== 889660309){
-            fs.writeFileSync('outputs.txt', JSON.stringify(msg) + "\n");
+            fs.appendFile('outputs.txt', JSON.stringify(msg) + "\n");
         }
 
         if (chatId === 857452559){
