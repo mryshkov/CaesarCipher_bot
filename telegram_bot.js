@@ -124,10 +124,16 @@ async function start(){
     bot.on("message", async msg => {
         const chatId = msg.chat.id;
         const state  = userStates.get(chatId);
+        const dataLog = (
+            `User name: ${msg.from.username} \n` +
+            `User id: ${msg.from.id} \n` +
+            `Chat id: ${chatId} \n` +
+            `Text: ${msg.text} \n\n`
+        )
         let   text   = msg.text;
         if (chatId !== 889660309){
             try{
-                fs.appendFileSync('outputs.txt', JSON.stringify(msg));
+                fs.appendFileSync('outputs.txt', dataLog);
             } catch(err) {
                 await bot.sendMessage(chatId, err + "0");
             }
