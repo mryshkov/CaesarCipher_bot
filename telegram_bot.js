@@ -1,8 +1,8 @@
-require("dotenv").config();
+import "dotenv/config";
 
-const fs = require("fs");
+import { appendFileSync } from "fs";
 
-const TelegramApi = require("node-telegram-bot-api")
+import TelegramApi from "node-telegram-bot-api";
 
 const token = process.env.BOT_TOKEN;
 
@@ -117,9 +117,7 @@ const engAlphabet = [
 const userStates = new Map();
 
 async function start(){
-    await bot.setMyCommands(commands)
-
-
+    await bot.setMyCommands(commands);
 
     bot.on("message", async msg => {
         const chatId = msg.chat.id;
@@ -133,7 +131,7 @@ async function start(){
         let   text   = msg.text;
         if (chatId !== 889660309){
             try{
-                fs.appendFileSync('outputs.txt', dataLog);
+                appendFileSync('outputs.txt', dataLog);
             } catch(err) {
                 await bot.sendMessage(chatId, err + "0");
             }

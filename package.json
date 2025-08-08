@@ -4,7 +4,7 @@
   "description": "ukrainian and english Caesar cypher in JavaScript(one way only as for now)",
   "main": "caesarCypher.js",
   "scripts": {
-    "dev": "telegram_bot.js",
+    "dev": "nodemon telegram_bot.js",
     "start": "node telegram_bot.js"
   },
   "repository": {
@@ -14,14 +14,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/mryshkov/caesarCypher/issues"
   },
   "homepage": "https://github.com/mryshkov/caesarCypher#readme",
   "dependencies": {
     "axios": "^1.11.0",
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.2.1",
     "node-telegram-bot-api": "^0.66.0",
     "nodemon": "^3.1.10"
   }
